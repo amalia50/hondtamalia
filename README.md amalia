@@ -1,0 +1,27 @@
+# Simulador de la Llei d'Hondt - Província de València
+
+Aplicació web interactiva desenvolupada per calcular l'assignació de escons al **Congrés dels Diputats** per la circumscripció electoral de la **província de València**, la qual tria un total de **16 diputats**.
+
+## 🚀 Característiques principales
+
+- **Edició en temps real:** Modifica els noms dels partits polítics o actualitza el nombre de vots amb clics directes.
+- **Gestió dinàmica de candidatures:** Afegeix nous partits o elimina'ls segons convinga.
+- **Càlcul automàtic de la barrera electoral:** Integra de manera estricta el llindar del **3% dels vots vàlids** necessari per participar en el repartiment d'escons a Espanya.
+- **Matriu de Cocients D'Hondt:** Visualitza de forma clara i transparent la taula completa de divisions (fins a 16 columnes) i comprova quins cocients s'emporten cadascun dels escons en joc.
+- **Botó de dades de referència:** Permet carregar ràpidament un escenari basat en eleccions generals anteriors per comprovar el funcionament de l'algoritme.
+
+## 🛠️ Tecnologies utilitzades
+
+- **HTML5 & JavaScript (Vanilla):** Lògica del càlcul electoral i reactivitat de la interfície.
+- **Tailwind CSS:** Disseny responsive, modern i minimalista basat en utilitats CSS.
+- **FontAwesome:** Iconografia institucional.
+
+## 📂 Estructura del repositori
+
+- `index.html` — Fitxer principal que conté tota l'estructura visual, l'estil i la lògica de càlcul de la Llei d'Hondt.
+- `README.md` — Documentació explicativa del projecte.
+
+## 🌐 Enllaç de visualització (GitHub Pages)
+
+Pots provar l'aplicació directament al navegador a través de la següent URL (un cop actives GitHub Pages al repositori):
+👉 [https://EL_TEU_USUARI.github.io/NOM_DEL_REPOSITORI/](https://EL_TEU_USUARI.github.io/NOM_DEL_REPOSITORI/)
