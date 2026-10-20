@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador Llei d'Hondt - València</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 min-p-6">
+    <div class="max-w-4xl mx-auto p-4 md:p-8 bg-white shadow-lg rounded-xl mt-6">
+        <h1 class="text-2xl md:text-3xl font-bold text-slate-800 mb-2">Simulador Llei d'Hondt - València</h1>
+        <p class="text-slate-600 mb-6">Modifica els noms dels partits, els vots obtinguts i calcula l'assignació d'escons.</p>
+
+        <!-- Configuració bàsica -->
+        <div class="mb-6 flex items-center gap-4 bg-slate-100 p-4 rounded-lg">
+            <label for="totalEscons" class="font-medium text-slate-700">Diputats a repartir:</label>
+            <input type="number" id="totalEscons" value="40" class="w-20 p-2 border rounded text-center font-bold" min="1">
+        </div>
+
+        <!-- Taula de Partits -->
+        <div class="overflow-x-auto mb-6">
+            <table class="w-full text-left border-collapse" id="partitsTable">
+                <thead>
+                    <tr class="bg-slate-200 text-slate-700">
+                        <th class="p-3">Partit Polític</th>
+                        <th class="p-3">Vots</th>
+                        <th class="p-3 text-center">Accions</th>
+                    </tr>
+                </thead>
+                <tbody id="partitsBody">
+                    <!-- Files d'exemple -->
+                    <tr class="border-b">
+                        <td class="p-2"><input type="text" value="Partit A" class="w-full p-2 border rounded nom-partit"></td>
+                        <td class="p-2"><input type="number" value="150000" class="w-full p-2 border rounded vots-partit" min="0"></td>
+                        <td class="p-2 text-center"><button onclick="eliminarFila(this)" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Eliminar</button></td>
+                    </tr>
+                    <tr class="border-b">
+                        <td class="p-2"><input type="text" value="Partit B" class="w-full p-2 border rounded nom-partit"></td>
+                        <td class="p-2"><input type="number" value="120000" class="w-full p-2 border rounded vots-partit" min="0"></td>
+                        <td class="p-2 text-center"><button onclick="eliminarFila(this)" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Eliminar</button></td>
+                    </tr>
+                    <tr class="border-b">
+                        <td class="p-2"><input type="text" value="Partit C" class="w-full p-2 border rounded nom-partit"></td>
+                        <td class="p-2"><input type="number" value="80000" class="w-full p-2 border rounded vots-partit" min="0"></td>
+                        <td class="p-2 text-center"><button onclick="eliminarFila(this)" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Eliminar</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="flex gap-4 mb-8">
+            <button onclick="afegirFila()" class="bg-green-600 text-white px-4 py-2 rounded font-medium hover:bg-green-700">+ Afegir Partit</button>
+            <button onclick="calcularHondt()" class="bg-blue-600 text-white px-6 py-2 rounded font-medium hover:bg-blue-700">Calcular Resultats</button>
+        </div>
+
+        <!-- Resultats -->
+        <div id="resultatsContainer" class="hidden">
+            <h2 class="text-xl font-bold text-slate-800 mb-4">Resultats de l'Assignació</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse" id="resultatsTable">
+                    <thead>
+                        <tr class="bg-slate-800 text-white">
+                            <th class="p-3">Partit</th>
+                            <th class="p-3">Vots</th>
+                            <th class="p-3">Diputats Assignats</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultatsBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function afegirFila() {
+            const tbody = document.getElementById('partitsBody');
+            const tr = document.createElement('tr');
+            tr.className = 'border-b';
+            tr.innerHTML = `
+                <td class="p-2"><input type="text" value="Nou Partit" class="w-full p-2 border rounded nom-partit"></td>
+                <td class="p-2"><input type="number" value="10000" class="w-full p-2 border rounded vots-partit" min="0"></td>
+                <td class="p-2 text-center"><button onclick="eliminarFila(this)" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Eliminar</button></td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        function eliminarFila(btn) {
+            const row = btn.closest('tr');
+            row.remove();
+        }
+
+        function calcularHondt() {
+            const noms = document.querySelectorAll('.nom-partit');
+            const vots = document.querySelectorAll('.vots-partit');
+            const totalEscons = parseInt(document.getElementById('totalEscons').value) || 40;
+
+            let partits = [];
+            for (let i = 0; i < noms.length; i++) {
+                let v = parseInt(vots[i].value) || 0;
+                if (v > 0) {
+                    partits.push({
+                        nom: noms[i].value || `Partit ${i+1}`,
+                        vots: v,
+                        escons: 0
+                    });
+                }
+            }
+
+            if (partits.length === 0) {
+                alert("Introdueix almenys un partit amb vots vàlids.");
+                return;
+            }
+
+            // Aplicació de la Llei d'Hondt
+            let matriu = [];
+            for (let i = 0; i < partits.length; i++) {
+                let filesPartit = [];
+                for (let j = 1; j <= totalEscons; j++) {
+                    filesPartit.push({
+                        partitIndex: i,
+                        quocient: partits[i].vots / j
+                    });
+                }
+                matriu.push(...filesPartit);
+            }
+
+            // Ordenar de major a menor quocient
+            matriu.sort((a, b) => b.quocient - a.quocient);
+
+            // Assignar escons als 'totalEscons' primers quocients
+            for (let i = 0; i < Math.min(totalEscons, matriu.length); i++) {
+                partits[matriu[i].partitIndex].escons++;
+            }
+
+            // Mostrar resultats
+            const resultatsBody = document.getElementById('resultatsBody');
+            resultatsBody.innerHTML = '';
+            partits.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.className = 'border-b hover:bg-slate-50';
+                tr.innerHTML = `
+                    <td class="p-3 font-medium">${p.nom}</td>
+                    <td class="p-3">${p.vots.toLocaleString()}</td>
+                    <td class="p-3 font-bold text-blue-600">${p.escons}</td>
+                `;
+                resultatsBody.appendChild(tr);
+            });
+
+            document.getElementById('resultatscontainer').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
